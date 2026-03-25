@@ -391,7 +391,16 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/demo", (req, res) => {
-  const round = db.prepare("SELECT id FROM auction_rounds WHERE title = ?").get(DEMO_ROUND_TITLE);
+  let round = db.prepare("SELECT id FROM auction_rounds WHERE title = ?").get(DEMO_ROUND_TITLE);
+  const demoMode = process.env.DEMO_MODE === "true";
+  if (!round && demoMode) {
+    try {
+      seedDemoAuction(db, { APP_TIMEZONE });
+      round = db.prepare("SELECT id FROM auction_rounds WHERE title = ?").get(DEMO_ROUND_TITLE);
+    } catch (err) {
+      console.error("Auto demo seed failed:", err.message);
+    }
+  }
   const assets = round
     ? db
         .prepare("SELECT id, auction_code, name FROM assets WHERE round_id = ? ORDER BY auction_code")
@@ -399,7 +408,7 @@ app.get("/demo", (req, res) => {
     : [];
   const msg = String(req.query.msg || "");
   res.render("demo", {
-    demoMode: process.env.DEMO_MODE === "true",
+    demoMode,
     hasDemo: Boolean(round),
     assets,
     demoRoundTitle: DEMO_ROUND_TITLE,
