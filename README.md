@@ -87,6 +87,7 @@ That response means the **Express app from this repo is not handling the request
 - If SMTP settings are not configured, emails are logged to server console.
 - Closure checks run every 30 seconds and auto-close expired rounds.
 - Round close is computed as local `23:59:00` in each round's timezone.
+- On Vercel, SQLite runs from `/tmp/auction.db` (ephemeral per instance). Data can reset between deployments/cold starts; use a persistent DB for production.
 
 ## Google Drive Setup (Asset Images)
 

@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
+const fs = require("fs");
 const Database = require("better-sqlite3");
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
@@ -22,7 +23,9 @@ dayjs.extend(timezone);
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, "data", "auction.db");
+const IS_VERCEL = Boolean(process.env.VERCEL);
+const DB_PATH =
+  process.env.DB_PATH || (IS_VERCEL ? "/tmp/auction.db" : path.join(__dirname, "data", "auction.db"));
 const EXEC_EMAILS = (process.env.EXEC_EMAILS || "exec1@example.com,exec2@example.com,exec3@example.com")
   .split(",")
   .map((x) => x.trim().toLowerCase())
@@ -36,6 +39,10 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || process.env.EXEC_EMAILS || "ex
 
 /** Anyone in EXEC_EMAILS or ADMIN_EMAILS may record an executive approval (union). */
 const APPROVER_EMAILS = [...new Set([...EXEC_EMAILS, ...ADMIN_EMAILS])];
+
+if (!IS_VERCEL) {
+  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
+}
 
 const db = new Database(DB_PATH);
 db.pragma("journal_mode = WAL");
@@ -333,7 +340,9 @@ async function notifyWinnerIfApproved(roundId, assetId) {
 
 migrate(db);
 seedAdministrators();
-setInterval(closeExpiredRoundsAndNotify, 30 * 1000);
+if (!IS_VERCEL) {
+  setInterval(closeExpiredRoundsAndNotify, 30 * 1000);
+}
 closeExpiredRoundsAndNotify();
 
 app.set("view engine", "ejs");
@@ -777,12 +786,16 @@ app.use((req, res) => {
 </body></html>`);
 });
 
-app.listen(PORT, () => {
-  const base = `http://localhost:${PORT}`;
-  console.log(`Auction portal — ${base}`);
-  console.log(`  Home          ${base}/`);
-  console.log(`  Bidding demo  ${base}/demo`);
-  console.log(`  Admin login     ${base}/admin/login  (alias: ${base}/login)`);
-  console.log(`  Health check  ${base}/health`);
-  console.log(`  Ping (verify app) ${base}/__auction/ping`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    const base = `http://localhost:${PORT}`;
+    console.log(`Auction portal — ${base}`);
+    console.log(`  Home          ${base}/`);
+    console.log(`  Bidding demo  ${base}/demo`);
+    console.log(`  Admin login     ${base}/admin/login  (alias: ${base}/login)`);
+    console.log(`  Health check  ${base}/health`);
+    console.log(`  Ping (verify app) ${base}/__auction/ping`);
+  });
+}
+
+module.exports = app;
