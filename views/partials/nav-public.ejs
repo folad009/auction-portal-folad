@@ -1,0 +1,29 @@
+<% const p = typeof active !== 'undefined' ? active : ''; %>
+<header class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
+  <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+    <a href="/" class="flex items-center gap-2 font-semibold text-slate-900 transition hover:text-indigo-600">
+      <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-bold text-white shadow-sm">A</span>
+      <span class="hidden sm:inline">Auction Portal</span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-1 text-sm font-medium" aria-label="Main">
+      <a
+        href="/"
+        class="rounded-lg px-3 py-2 transition <%= p === 'home' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>"
+        <%= p === 'home' ? 'aria-current="page"' : '' %>
+        >Browse</a
+      >
+      <a
+        href="/demo"
+        class="rounded-lg px-3 py-2 transition <%= p === 'demo' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>"
+        <%= p === 'demo' ? 'aria-current="page"' : '' %>
+        >Demo</a
+      >
+      <a
+        href="/admin/login"
+        class="rounded-lg px-3 py-2 transition <%= p === 'admin' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>"
+        <%= p === 'admin' ? 'aria-current="page"' : '' %>
+        >Admin</a
+      >
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,31 @@
+{
+  "name": "auction-app",
+  "version": "1.0.0",
+  "description": "Reusable online auction portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "demo:seed": "node scripts/seed-demo.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "better-sqlite3": "^12.8.0",
+    "dayjs": "^1.11.20",
+    "ejs": "^5.0.1",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "googleapis": "^171.4.0",
+    "multer": "^2.0.2",
+    "nodemailer": "^8.0.3",
+    "pdfkit": "^0.17.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

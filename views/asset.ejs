@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('partials/head', { title: asset.name + ' · Auction Portal', metaDescription: asset.description }) %>
+  </head>
+  <body class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-800 antialiased">
+    <%- include('partials/nav-public', { active: 'home' }) %>
+
+    <main class="flex-1">
+      <div class="border-b border-slate-200 bg-white">
+        <div class="mx-auto max-w-6xl px-4 py-4">
+          <nav class="text-sm text-slate-500" aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-2">
+              <li><a class="text-indigo-600 hover:underline" href="/">Listings</a></li>
+              <li aria-hidden="true">/</li>
+              <li class="font-medium text-slate-800 line-clamp-1"><%= asset.auction_code %></li>
+            </ol>
+          </nav>
+          <h1 class="mt-2 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl"><%= asset.name %></h1>
+          <p class="mt-1 text-sm text-slate-500"><%= asset.auction_code %> · <%= asset.round_title %></p>
+        </div>
+      </div>
+
+      <div class="mx-auto max-w-6xl px-4 py-8">
+        <div class="grid gap-8 lg:grid-cols-5">
+          <div class="lg:col-span-3 space-y-6">
+            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+              <% if (asset.image_url) { %>
+              <div class="aspect-[16/9] max-h-[22rem] bg-slate-100">
+                <img src="<%= asset.image_url %>" alt="<%= asset.name %>" class="h-full w-full object-cover" />
+              </div>
+              <% } %>
+              <div class="p-6">
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Description</h2>
+                <p class="mt-2 text-slate-700 leading-relaxed"><%= asset.description %></p>
+                <dl class="mt-6 grid gap-4 sm:grid-cols-2">
+                  <div class="rounded-xl bg-slate-50 p-4">
+                    <dt class="text-xs font-medium text-slate-500">Location</dt>
+                    <dd class="mt-1 font-medium text-slate-900"><%= asset.location %></dd>
+                  </div>
+                  <div class="rounded-xl bg-slate-50 p-4">
+                    <dt class="text-xs font-medium text-slate-500">Minimum bid</dt>
+                    <dd class="mt-1 font-semibold text-slate-900"><%= asset.minimum_bid %></dd>
+                  </div>
+                  <div class="rounded-xl bg-slate-50 p-4 sm:col-span-2">
+                    <dt class="text-xs font-medium text-slate-500">Bidding window</dt>
+                    <dd class="mt-1 text-sm text-slate-800"><%= asset.start_at_local %> → <%= asset.end_at_local %></dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <section aria-labelledby="bid-log-heading">
+              <h2 id="bid-log-heading" class="text-lg font-semibold text-slate-900">Bid log & ranking</h2>
+              <p class="text-sm text-slate-500">Highest valid bids first. Timestamps are stored in UTC (shown as submitted).</p>
+              <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead class="bg-slate-50">
+                      <tr>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Rank</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Bidder</th>
+                        <th scope="col" class="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 md:table-cell">Phone</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Bid</th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Submitted</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                      <% if (!bids.length) { %>
+                      <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-slate-500">No bids yet. Be the first.</td>
+                      </tr>
+                      <% } %>
+                      <% bids.forEach((bid, idx) => { %>
+                      <tr class="<%= idx === 0 ? 'bg-emerald-50/50' : '' %>">
+                        <td class="whitespace-nowrap px-4 py-3 text-slate-700">
+                          <% if (idx === 0) { %>
+                          <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">1st</span>
+                          <% } else { %>
+                          <%= idx + 1 %>
+                          <% } %>
+                        </td>
+                        <td class="px-4 py-3">
+                          <div class="font-medium text-slate-900"><%= bid.name %></div>
+                          <div class="text-xs text-slate-500"><%= bid.email %></div>
+                        </td>
+                        <td class="hidden whitespace-nowrap px-4 py-3 text-slate-600 md:table-cell"><%= bid.phone %></td>
+                        <td class="whitespace-nowrap px-4 py-3 font-semibold text-slate-900"><%= bid.bid_value %></td>
+                        <td class="whitespace-nowrap px-4 py-3 text-slate-600"><%= bid.submitted_at %></td>
+                      </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+                <% if (bids.length) { %>
+                <div class="hidden border-t border-slate-100 bg-slate-50/80 px-4 py-2 text-xs text-slate-500 sm:block">
+                  <span class="font-medium">Contact on file:</span> phone numbers shown to admins in full export.
+                </div>
+                <% } %>
+              </div>
+            </section>
+          </div>
+
+          <div class="lg:col-span-2">
+            <% if (closed) { %>
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900 shadow-card">
+              <h2 class="text-lg font-semibold">Bidding closed</h2>
+              <p class="mt-2 text-sm text-amber-800/90">This window has ended. No new bids are accepted for this asset.</p>
+            </div>
+            <% } else { %>
+            <div class="sticky top-20 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+              <h2 class="text-lg font-semibold text-slate-900">Place your bid</h2>
+              <p class="mt-1 text-sm text-slate-500">One bid per email address for this item. You’ll receive a link to verify your email.</p>
+              <form method="post" action="/bid" class="mt-6 space-y-4">
+                <input type="hidden" name="assetId" value="<%= asset.id %>" />
+                <div>
+                  <label for="bid-name" class="block text-sm font-medium text-slate-700">Full name</label>
+                  <input id="bid-name" name="name" required minlength="2" autocomplete="name" class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="As on ID" />
+                </div>
+                <div>
+                  <label for="bid-email" class="block text-sm font-medium text-slate-700">Email</label>
+                  <input id="bid-email" type="email" name="email" required autocomplete="email" class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="you@company.com" />
+                </div>
+                <div>
+                  <label for="bid-phone" class="block text-sm font-medium text-slate-700">Phone</label>
+                  <input id="bid-phone" name="phone" required inputmode="tel" autocomplete="tel" class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" placeholder="+234 800 000 0000" />
+                  <p class="mt-1 text-xs text-slate-500">Digits, spaces, and common symbols only.</p>
+                </div>
+                <div>
+                  <label for="bid-value" class="block text-sm font-medium text-slate-700">Bid amount</label>
+                  <input id="bid-value" type="number" name="bidValue" min="<%= asset.minimum_bid %>" step="0.01" required class="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-900 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+                  <p class="mt-1 text-xs text-slate-500">Must be at least <%= asset.minimum_bid %>.</p>
+                </div>
+                <button type="submit" class="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Submit bid</button>
+              </form>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+  </body>
+</html>

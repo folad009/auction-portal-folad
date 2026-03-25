@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('partials/head', { title: title || 'Email verification' }) %>
+  </head>
+  <body class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-800 antialiased">
+    <%- include('partials/nav-public', { active: 'home' }) %>
+    <main class="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-4 py-12">
+      <% if (status === 'success') { %>
+      <div class="rounded-2xl border border-emerald-200 bg-white p-8 text-center shadow-card">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl">✓</div>
+        <h1 class="text-xl font-bold text-slate-900">Email verified</h1>
+        <p class="mt-2 text-sm text-slate-600">Your email is confirmed. You can return to the asset page or browse open listings.</p>
+        <a href="/" class="mt-6 inline-flex rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700">Back to listings</a>
+      </div>
+      <% } else if (status === 'already') { %>
+      <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-card">
+        <h1 class="text-xl font-bold text-slate-900">Already verified</h1>
+        <p class="mt-2 text-sm text-slate-600">This email was already verified.</p>
+        <a href="/" class="mt-6 inline-flex rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Home</a>
+      </div>
+      <% } else if (status === 'expired') { %>
+      <div class="rounded-2xl border border-amber-200 bg-white p-8 text-center shadow-card">
+        <h1 class="text-xl font-bold text-slate-900">Link expired</h1>
+        <p class="mt-2 text-sm text-slate-600">This verification link is no longer valid. Submit a new bid to receive a fresh link.</p>
+        <a href="/" class="mt-6 inline-flex rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">Browse listings</a>
+      </div>
+      <% } else { %>
+      <div class="rounded-2xl border border-rose-200 bg-white p-8 text-center shadow-card">
+        <h1 class="text-xl font-bold text-slate-900">Invalid link</h1>
+        <p class="mt-2 text-sm text-slate-600">We could not verify this link. It may be incorrect or already used.</p>
+        <a href="/" class="mt-6 inline-flex rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">Home</a>
+      </div>
+      <% } %>
+    </main>
+    <%- include('partials/footer') %>
+  </body>
+</html>

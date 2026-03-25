@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('partials/head', { title: 'Report · ' + round.title, metaDescription: 'Bid evaluation report for auction round.' }) %>
+  </head>
+  <body class="flex min-h-screen flex-col bg-slate-100 font-sans text-slate-800 antialiased">
+    <%- include('partials/nav-admin') %>
+
+    <main class="flex-1">
+      <div class="border-b border-slate-200 bg-white">
+        <div class="mx-auto max-w-6xl px-4 py-6">
+          <nav class="text-sm text-slate-500" aria-label="Breadcrumb">
+            <a class="text-indigo-600 hover:underline" href="/admin">Admin</a>
+            <span aria-hidden="true" class="mx-2">/</span>
+            <span class="text-slate-700">Report</span>
+          </nav>
+          <div class="mt-4 flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 class="text-2xl font-bold text-slate-900 sm:text-3xl">Bid evaluation report</h1>
+              <p class="mt-1 text-slate-600"><%= round.title %></p>
+              <p class="mt-2 text-sm text-slate-500">
+                Viewed by <strong class="text-slate-700"><%= (typeof admin !== "undefined" && admin && admin.email) ? admin.email : "N/A" %></strong>
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <a href="/results/<%= round.id %>/export.pdf" class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Download PDF</a>
+              <a href="/results/<%= round.id %>/export.xlsx" class="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Download Excel</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mx-auto max-w-6xl px-4 py-8">
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+          <dl class="grid gap-4 sm:grid-cols-3">
+            <div>
+              <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Status</dt>
+              <dd class="mt-1">
+                <% if (round.status === 'OPEN') { %>
+                <span class="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-sm font-semibold text-emerald-800">Open</span>
+                <% } else { %>
+                <span class="inline-flex rounded-full bg-slate-200 px-2.5 py-0.5 text-sm font-semibold text-slate-800">Closed</span>
+                <% } %>
+              </dd>
+            </div>
+            <div class="sm:col-span-2">
+              <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500">Bidding window</dt>
+              <dd class="mt-1 text-sm text-slate-800"><%= round.start_at_local %> → <%= round.end_at_local %></dd>
+              <dd class="mt-1 text-xs text-slate-500">Closes at 11:59 PM (<%= round.timezone %>) on the closing date.</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="mt-8 space-y-8">
+          <% summary.forEach(group => { %>
+          <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+            <div class="border-b border-slate-100 bg-slate-50/80 px-6 py-4">
+              <h2 class="text-lg font-semibold text-slate-900"><%= group.asset.auction_code %> — <%= group.asset.name %></h2>
+              <p class="mt-1 text-sm text-slate-600"><%= group.asset.location %> · Min. bid <%= group.asset.minimum_bid %></p>
+              <% if (group.highest) { %>
+              <p class="mt-3 text-sm">
+                <span class="font-medium text-slate-700">Leading bid:</span>
+                <span class="font-semibold text-indigo-700"><%= group.highest.bid_value %></span>
+                <span class="text-slate-600"> — <%= group.highest.name %> &lt;<%= group.highest.email %>&gt;</span>
+              </p>
+              <% } else { %>
+              <p class="mt-3 text-sm text-amber-800">No bids received for this asset.</p>
+              <% } %>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-white">
+                  <tr>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Rank</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Bidder</th>
+                    <th scope="col" class="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 md:table-cell">Phone</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Bid</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">Submitted</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <% if (!group.bids.length) { %>
+                  <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">No bids.</td></tr>
+                  <% } %>
+                  <% group.bids.forEach((bid, idx) => { %>
+                  <tr class="<%= idx === 0 ? 'bg-emerald-50/40' : '' %>">
+                    <td class="whitespace-nowrap px-4 py-3"><%= idx + 1 %></td>
+                    <td class="px-4 py-3">
+                      <div class="font-medium text-slate-900"><%= bid.name %></div>
+                      <div class="text-xs text-slate-500"><%= bid.email %></div>
+                    </td>
+                    <td class="hidden whitespace-nowrap px-4 py-3 text-slate-600 md:table-cell"><%= bid.phone %></td>
+                    <td class="whitespace-nowrap px-4 py-3 font-semibold text-slate-900"><%= bid.bid_value %></td>
+                    <td class="whitespace-nowrap px-4 py-3 text-slate-600"><%= bid.submitted_at %></td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <% }) %>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
